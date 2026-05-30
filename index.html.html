@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Нумеролог — Число твоей судьбы</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d0b14;
+    color: #e8e0d0;
+    font-family: 'Crimson Text', serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .stars {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 30%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 60%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 75%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 85%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 55%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(2px 2px at 70% 45%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(2px 2px at 20% 25%, rgba(255,255,255,0.15) 0%, transparent 100%);
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 520px; width: 100%;
+  }
+
+  .header { text-align: center; margin-bottom: 2.5rem; }
+
+  .glyph {
+    font-size: 48px; display: block; margin-bottom: 1rem;
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 28px; font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #f0e6c8;
+    text-shadow: 0 0 30px rgba(200,160,80,0.4);
+    margin-bottom: 8px;
+  }
+
+  .tagline {
+    font-size: 16px; color: #a09080;
+    font-style: italic; letter-spacing: 0.02em;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(200,160,80,0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 12px; letter-spacing: 0.12em;
+    color: #a09080; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  input[type="date"] {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(200,160,80,0.3);
+    border-radius: 8px;
+    color: #e8e0d0;
+    font-family: 'Crimson Text', serif;
+    font-size: 18px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.3s;
+    color-scheme: dark;
+  }
+  input[type="date"]:focus { border-color: rgba(200,160,80,0.7); }
+
+  .btn {
+    width: 100%; margin-top: 1.5rem;
+    background: linear-gradient(135deg, #b8903a, #d4af6a, #b8903a);
+    border: none; border-radius: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 15px; font-weight: 600;
+    letter-spacing: 0.1em;
+    color: #1a1408;
+    padding: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn:active { transform: scale(0.98); }
+
+  .nums-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 1.5rem;
+    display: none;
+  }
+
+  .num-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(200,160,80,0.2);
+    border-radius: 12px; padding: 1rem 0.5rem;
+    text-align: center;
+    animation: fadein 0.6s ease forwards;
+  }
+  @keyframes fadein { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .num-big {
+    font-family: 'Cinzel', serif;
+    font-size: 40px; font-weight: 700;
+    color: #d4af6a;
+    text-shadow: 0 0 20px rgba(212,175,106,0.5);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .num-lbl {
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 0.1em;
+    color: #7a6a55; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .num-hint {
+    font-size: 13px; color: #908070;
+    font-style: italic; line-height: 1.4;
+  }
+
+  .prophecy {
+    background: rgba(200,160,80,0.06);
+    border: 1px solid rgba(200,160,80,0.25);
+    border-radius: 16px; padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: none;
+    animation: fadein 0.8s ease forwards;
+  }
+
+  .prophecy-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px; letter-spacing: 0.1em;
+    color: #d4af6a; text-transform: uppercase;
+    margin-bottom: 1rem; text-align: center;
+  }
+
+  .prophecy-text {
+    font-size: 17px; line-height: 1.9;
+    color: #d8cfc0; font-style: italic;
+  }
+
+  .divider {
+    text-align: center;
+    color: #5a4a35; font-size: 18px;
+    letter-spacing: 0.3em;
+    margin: 1rem 0;
+  }
+
+  .share-block {
+    text-align: center; display: none;
+    animation: fadein 0.6s ease forwards;
+  }
+
+  .share-hint {
+    font-size: 14px; color: #7a6a55;
+    font-style: italic; margin-bottom: 12px;
+  }
+
+  .btn-share {
+    background: transparent;
+    border: 1px solid rgba(200,160,80,0.4);
+    border-radius: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 13px; letter-spacing: 0.08em;
+    color: #d4af6a; padding: 10px 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-share:hover { background: rgba(200,160,80,0.1); }
+
+  .footer {
+    text-align: center; margin-top: 2rem;
+    font-size: 13px; color: #4a3a25;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="wrap">
+  <div class="header">
+    <span class="glyph">✦</span>
+    <h1>Нумеролог</h1>
+    <p class="tagline">Числа знают то, что скрыто от глаз</p>
+  </div>
+
+  <div class="card">
+    <label>Дата рождения</label>
+    <input type="date" id="dob" max="2008-01-01" />
+    <button class="btn" onclick="calculate()">Раскрыть число судьбы</button>
+  </div>
+
+  <div class="nums-grid" id="numsGrid">
+    <div class="num-box">
+      <div class="num-big" id="lifeN">—</div>
+      <div class="num-lbl">Судьба</div>
+      <div class="num-hint" id="lifeH"></div>
+    </div>
+    <div class="num-box">
+      <div class="num-big" id="soulN">—</div>
+      <div class="num-lbl">Душа</div>
+      <div class="num-hint" id="soulH"></div>
+    </div>
+    <div class="num-box">
+      <div class="num-big" id="yearN">—</div>
+      <div class="num-lbl">Год</div>
+      <div class="num-hint" id="yearH"></div>
+    </div>
+  </div>
+
+  <div class="prophecy" id="prophecy">
+    <div class="prophecy-title">✦ &nbsp; Послание чисел &nbsp; ✦</div>
+    <div class="prophecy-text" id="prophecyText"></div>
+  </div>
+
+  <div class="divider" id="divider" style="display:none">· · ·</div>
+
+  <div class="share-block" id="shareBlock">
+    <p class="share-hint">Поделись своим числом судьбы с друзьями</p>
+    <button class="btn-share" onclick="share()">✦ &nbsp; Поделиться в Telegram</button>
+  </div>
+
+  <div class="footer">Нумерология — древняя наука чисел</div>
+</div>
+
+<script>
+const LIFE = {
+  1: ["Первопроходец", "Ты рождён вести"],
+  2: ["Дипломат", "Сила в гармонии"],
+  3: ["Творец", "Слова — твой дар"],
+  4: ["Строитель", "Ты создаёшь"],
+  5: ["Искатель", "Свобода — стихия"],
+  6: ["Хранитель", "Любовь движет тобой"],
+  7: ["Мистик", "Ты ищешь истину"],
+  8: ["Властитель", "Мир — твоя арена"],
+  9: ["Мудрец", "Ты несёшь свет"],
+  11: ["Интуит", "Высшая чуткость"],
+  22: ["Архитектор", "Изменить мир"],
+  33: ["Учитель", "Носитель любви"]
+};
+
+const SOUL = {
+  1:"жажда независимости и лидерства",
+  2:"стремление к любви и единству",
+  3:"желание творить и выражать себя",
+  4:"поиск стабильности и порядка",
+  5:"тяга к свободе и переменам",
+  6:"потребность в гармонии близких",
+  7:"поиск духовной глубины",
+  8:"жажда успеха и признания",
+  9:"стремление служить высшей цели",
+  11:"ощущение особого предназначения",
+  22:"мечта оставить след в истории",
+  33:"несение универсальной любви"
+};
+
+const YEAR = {
+  1:"Новые начала",2:"Союзы",3:"Творчество",
+  4:"Труд",5:"Перемены",6:"Семья",
+  7:"Размышление",8:"Жатва",9:"Завершение"
+};
+
+const PROPHECIES = {
+  1: "Ты — первая искра в темноте, та, что зажигает остальных. Твой путь требует смелости идти туда, где ещё нет следов. В этом году звёзды выстраиваются в стрелу, указывающую вперёд — доверяй своему внутреннему компасу, даже когда другие сомневаются. Твоя сила рождается в моменты, когда ты выбираешь действие вместо ожидания.",
+  2: "Ты соткан из нитей, что связывают людей между собой. Твой дар — слышать то, что не сказано вслух, и находить мост там, где другие видят пропасть. Числа говорят: этот период принесёт важный союз — будь готов открыть сердце. Самая большая твоя победа случится не в одиночестве, а рядом с другим.",
+  3: "Слова, которые ты ещё не произнёс, уже меняют мир. Твоё число — это голос вселенной, ищущей выражения через тебя. Твори без страха осуждения, говори то, что чувствуешь — именно это притягивает к тебе людей и возможности. Числа обещают: твоя идея, высказанная вслух, найдёт тех, кто ждал её годами.",
+  4: "Ты — тот, кто строит не замки из воздуха, а дома, в которых живут поколения. Твоя сила в терпении и точности — ты видишь фундамент там, где другие видят лишь мечту. Сейчас ты закладываешь нечто важное, что даст плоды позже, чем хотелось бы. Не торопись — числа обещают: построенное тобой устоит.",
+  5: "Ты рождён для горизонтов, которые ещё не открылись. Каждая перемена в твоей жизни — не случайность, а приглашение к следующей главе. Числа говорят: скоро появится дверь, о которой ты не подозревал — войди. Твоя истинная свобода не в отсутствии обязательств, а в умении выбирать то, что зажигает тебя изнутри.",
+  6: "В тебе живёт тепло, способное согреть целый мир. Ты из тех, к кому тянутся люди в минуты слабости — и это не случайно. Числа говорят: забота о других — твоя сила, но помни заботиться и о себе. Гармония, которую ты создаёшь вокруг, начинается внутри — там, где ты позволяешь себе быть уязвимым.",
+  7: "Ты видишь то, что скрыто за поверхностью вещей. Твой ум — это глубокий колодец, в который редко заглядывают другие. Числа говорят: период уединения и размышлений принесёт тебе ответ на вопрос, что мучит давно. Доверяй своей интуиции — она работает точнее любой логики. Истина, которую ты ищешь, ближе, чем кажется.",
+  8: "Ты несёшь в себе силу, способную двигать горы — и рынки. Твоё число — это число тех, кто приходит к власти не случайно, а через понимание законов мира. Числа говорят: сейчас созревает то, во что ты вкладывал себя. Не отступай в шаге от результата. Материальный мир отвечает тем, кто умеет его слышать.",
+  9: "Ты прожил много — в этой жизни и, возможно, в прошлых. Мудрость, которую ты несёшь, не всегда поддаётся словам, но люди её чувствуют рядом с тобой. Числа говорят: этот период — время отпускать старое, чтобы освободить место для нового. Твой свет нужен миру — не прячь его из скромности.",
+  11: "Ты — мост между мирами, которые большинство не видит. Твоя чувствительность — не слабость, это антенна, настроенная на частоты, недоступные другим. Числа говорят: доверяй первому ощущению — оно точнее долгих раздумий. Твоё предназначение связано с тем, чтобы помогать другим видеть невидимое.",
+  22: "Тебе дана редкая способность — воплощать великие идеи в реальность. Там, где другие мечтают, ты строишь. Числа говорят: замысел, который кажется тебе слишком большим — именно он и есть твой. Не уменьшай свои цели до чужих возможностей. Мир ждёт того, что только ты способен создать.",
+  33: "В тебе живёт любовь такой чистоты, что она меняет людей одним своим присутствием. Твоё число — самое редкое из мастерских. Числа говорят: твоя жизнь — это урок, который ты преподаёшь самим своим существованием. Не ищи признания — просто будь собой, и нужные люди придут."
+};
+
+function reduce(n) {
+  if (n === 11 || n === 22 || n === 33) return n;
+  while (n > 9) {
+    n = String(n).split('').reduce((a,d) => a + parseInt(d), 0);
+    if (n === 11 || n === 22 || n === 33) return n;
+  }
+  return n;
+}
+
+function calculate() {
+  const dob = document.getElementById('dob').value;
+  if (!dob) { alert('Введи дату рождения'); return; }
+
+  const [y, m, d] = dob.split('-').map(Number);
+  const digits = s => String(s).split('').map(Number).reduce((a,b)=>a+b,0);
+  const lifeN = reduce(digits(d) + digits(m) + digits(y));
+  const soulN = reduce(digits(d));
+  const curY = new Date().getFullYear();
+  const yearN = reduce(digits(d) + digits(m) + digits(curY));
+
+  document.getElementById('lifeN').textContent = lifeN;
+  document.getElementById('soulN').textContent = soulN;
+  document.getElementById('yearN').textContent = yearN;
+  document.getElementById('lifeH').textContent = (LIFE[lifeN] || ['',''])[0];
+  document.getElementById('soulH').textContent = SOUL[soulN] || '';
+  document.getElementById('yearH').textContent = YEAR[yearN] || YEAR[reduce(yearN)] || '';
+
+  document.getElementById('prophecyText').textContent = PROPHECIES[lifeN] || PROPHECIES[9];
+
+  document.getElementById('numsGrid').style.display = 'grid';
+  document.getElementById('prophecy').style.display = 'block';
+  document.getElementById('divider').style.display = 'block';
+  document.getElementById('shareBlock').style.display = 'block';
+
+  window._shareData = { lifeN, text: PROPHECIES[lifeN] || PROPHECIES[9] };
+}
+
+function share() {
+  const d = window._shareData || {};
+  const msg = encodeURIComponent(
+    `✦ Моё число судьбы — ${d.lifeN}\n\n${(d.text||'').substring(0,120)}...\n\nУзнай своё число 👇`
+  );
+  window.open(`https://t.me/share/url?url=https%3A%2F%2Ft.me%2FM_iscra&text=${msg}`, '_blank');
+}
+</script>
+</body>
+</html>
